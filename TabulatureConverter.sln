@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabulatureConverter", "TabulatureConverter\TabulatureConverter.csproj", "{366528D0-3EAA-4F22-9332-AC851CE8DA60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabulatureConverter_tests", "TabulatureConverter_tests\TabulatureConverter_tests.csproj", "{6CC14652-88AD-479D-A499-25E8227115CC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{366528D0-3EAA-4F22-9332-AC851CE8DA60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{366528D0-3EAA-4F22-9332-AC851CE8DA60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{366528D0-3EAA-4F22-9332-AC851CE8DA60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{366528D0-3EAA-4F22-9332-AC851CE8DA60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CC14652-88AD-479D-A499-25E8227115CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CC14652-88AD-479D-A499-25E8227115CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CC14652-88AD-479D-A499-25E8227115CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CC14652-88AD-479D-A499-25E8227115CC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
