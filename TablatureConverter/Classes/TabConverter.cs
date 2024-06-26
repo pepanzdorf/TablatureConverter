@@ -7,7 +7,7 @@ using TablatureConverter.Interfaces;
 
 namespace TablatureConverter.Classes;
 
-public class TabParser
+public class TabConverter
 {
     private readonly TextReader _tabSource;
     private readonly IInstrumentTabParser _instrumentTabParser;
@@ -16,7 +16,7 @@ public class TabParser
     private readonly int _transposeSemitones;
     private readonly StringBuilder _buffer = new StringBuilder();
     
-    public TabParser(TextReader tabSource, TextWriter tabOutput,IInstrumentTabParser instrumentTabParser, IInstrumentTabBuilder instrumentTabBuilder, int transposeSemitones)
+    public TabConverter(TextReader tabSource, TextWriter tabOutput,IInstrumentTabParser instrumentTabParser, IInstrumentTabBuilder instrumentTabBuilder, int transposeSemitones)
     {
         _tabSource = tabSource;
         _tabOutput = tabOutput;

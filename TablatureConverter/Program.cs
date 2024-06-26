@@ -177,9 +177,9 @@ namespace TablatureConverter
                     {
                         using (StreamWriter tabOutput = new StreamWriter(o.OutputFileName))
                         {
-                            TabParser tabParser = new TabParser(tabSource, tabOutput, instrumentTabParser,
+                            TabConverter tabConverter = new TabConverter(tabSource, tabOutput, instrumentTabParser,
                                 instrumentTabBuilder, o.TransposeSemitones);
-                            tabParser.Parse();
+                            tabConverter.Parse();
                         }
                     }
                 }
