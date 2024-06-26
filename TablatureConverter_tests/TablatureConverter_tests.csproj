@@ -7,6 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>TabulatureConverter_tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TabulatureConverter\TabulatureConverter.csproj" />
+      <ProjectReference Include="..\TablatureConverter\TablatureConverter.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabulatureConverter", "TabulatureConverter\TabulatureConverter.csproj", "{366528D0-3EAA-4F22-9332-AC851CE8DA60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TablatureConverter", "TablatureConverter\TablatureConverter.csproj", "{366528D0-3EAA-4F22-9332-AC851CE8DA60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TabulatureConverter_tests", "TabulatureConverter_tests\TabulatureConverter_tests.csproj", "{6CC14652-88AD-479D-A499-25E8227115CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TablatureConverter_tests", "TablatureConverter_tests\TablatureConverter_tests.csproj", "{6CC14652-88AD-479D-A499-25E8227115CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
