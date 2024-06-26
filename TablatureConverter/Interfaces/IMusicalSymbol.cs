@@ -1,3 +1,3 @@
-namespace TabulatureConverter.Interfaces;
+namespace TablatureConverter.Interfaces;
 
 public interface IMusicalSymbol { }

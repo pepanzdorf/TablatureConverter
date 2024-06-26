@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using TabulatureConverter.Classes;
-using TabulatureConverter.Interfaces;
 using CommandLine;
+using TablatureConverter.Classes;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter
+namespace TablatureConverter
 {
     
     public class Options

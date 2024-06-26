@@ -1,6 +1,6 @@
 using System;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 public class NoteFinder
 {

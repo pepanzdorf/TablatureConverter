@@ -1,7 +1,7 @@
 using System;
-using TabulatureConverter.Interfaces;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 
 static class Constants

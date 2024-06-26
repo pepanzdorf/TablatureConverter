@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using TabulatureConverter.Interfaces;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 public class GuitarTabParser : IInstrumentTabParser
 {

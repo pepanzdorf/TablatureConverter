@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TabulatureConverter.Interfaces;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 
 public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "TabulatureConverter": {
+    "TablatureConverter": {
       "commandName": "Project",
       "workingDirectory": "$(ProjectDir)"
     }

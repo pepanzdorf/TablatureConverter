@@ -1,2 +1,2 @@
 global using Xunit;
-global using TabulatureConverter.Classes;
+global using TablatureConverter.Classes;

@@ -1,6 +1,6 @@
-using TabulatureConverter.Interfaces;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 public struct Technique : IMusicalSymbol
 {

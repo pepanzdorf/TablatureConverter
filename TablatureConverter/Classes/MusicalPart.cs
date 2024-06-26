@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using TabulatureConverter.Interfaces;
+using TablatureConverter.Interfaces;
 
-namespace TabulatureConverter.Classes;
+namespace TablatureConverter.Classes;
 
 public struct MusicalPart
 {

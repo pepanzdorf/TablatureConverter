@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using TabulatureConverter.Classes;
+using TablatureConverter.Classes;
 
-namespace TabulatureConverter.Interfaces;
+namespace TablatureConverter.Interfaces;
 
 public interface IInstrumentTabParser
 {
