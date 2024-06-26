@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using CommandLine;
 using TablatureConverter.Classes;
@@ -7,7 +6,6 @@ using TablatureConverter.Interfaces;
 
 namespace TablatureConverter
 {
-    
     public class Options
     {
         [Option('i', "input", Required = true, Default = "", HelpText = "Input file-name.")]
@@ -25,17 +23,11 @@ namespace TablatureConverter
         [Option('b', "builder", Required = false, Default = "banjo", HelpText = "Instrument the new tab is for.")]
         public string InstrumentTabBuilder { get; set; } = "banjo";
         
-        [Option("input-string-names", Required = false, Default = "", HelpText = "Names of the strings of the original instrument. (alternative tuning)")]
-        public string InputStringNames { get; set; } = string.Empty;
+        [Option("input-tuning", Required = false, Default = "", HelpText = "Name of the tuning file of the chosen input instrument. (alternative tuning)")]
+        public string InputTuning { get; set; } = string.Empty;
         
-        [Option("input-string-offsets", Required = false, Default = "", HelpText = "Offsets of the strings of the original instrument. (alternative tuning")]
-        public string InputStringOffsets { get; set; } = string.Empty;
-        
-        [Option("output-string-names", Required = false, Default = "", HelpText = "Names of the strings of the new instrument. (alternative tuning)")]
-        public string OutputStringNames { get; set; } = string.Empty;
-        
-        [Option("output-string-offsets", Required = false, Default = "", HelpText = "Offsets of the strings of the new instrument. (alternative tuning)")]
-        public string OutputStringOffsets { get; set; } = string.Empty;
+        [Option("output-tuning", Required = false, Default = "", HelpText = "Name of the tuning file of the chosen output instrument. (alternative tuning)")]
+        public string OutputTuning { get; set; } = string.Empty;
     }
     
     class Program
@@ -48,118 +40,119 @@ namespace TablatureConverter
                 
                 if (o.OutputFileName == string.Empty)
                 {
-                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, ".banjo.txt");
+                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, $".{o.InstrumentTabBuilder}.txt");
                 }
-                
-                IInstrumentTabParser instrumentTabParser = new GuitarTabParser();
-                if (o.InputStringNames != string.Empty && o.InputStringOffsets != string.Empty)
-                {
-                    string[] stringNames = o.InputStringNames.Split(';');
-                    string[] stringOffsetsAsStrings = o.InputStringOffsets.Split(';');
-                    if (stringNames.Length != stringOffsetsAsStrings.Length)
-                    {
-                        Console.Error.WriteLine("Invalid number of string names and string offsets.");
-                        return;
-                    }
 
+                IInstrumentTabParser instrumentTabParser;
+                if (o.InputTuning != string.Empty)
+                {
+                    string[] stringNames;
                     int[] stringOffsets;
+                    
                     try
                     {
-                        stringOffsets = Array.ConvertAll(stringOffsetsAsStrings, int.Parse);
+                        (stringNames, stringOffsets) = TuningReader.Read(o.InputTuning);
+                    }
+                    catch (IOException)
+                    {
+                        Console.Error.WriteLine("Could not open tuning file.");
+                        return;
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.Error.WriteLine("Could not open tuning file. (insufficient rights)");
+                        return;
                     }
                     catch (FormatException)
                     {
-                        Console.Error.WriteLine("Invalid string offsets (tuning)");
+                        Console.Error.WriteLine("Invalid tuning file.");
                         return;
                     }
+
                     switch (o.InstrumentTabParser)
                     {
-                        case "":
-                            instrumentTabParser = new GuitarTabParser(stringNames, stringOffsets);
-                            break;
                         case "guitar":
                             instrumentTabParser = new GuitarTabParser(stringNames, stringOffsets);
                             break;
                         case "bass":
-                            // instrumentTabParse = new BassTabParser(stringNames, stringOffsets);
+                            instrumentTabParser = new BassTabParser(stringNames, stringOffsets);
                             break;
                         default:
                             Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
                             return;
                     }
                 }
-                else if (o.InstrumentTabParser == "")
-                {
-                    instrumentTabParser = new GuitarTabParser();
-                }
-                else if (o.InstrumentTabParser == "guitar")
-                {
-                    instrumentTabParser = new GuitarTabParser();
-                }
-                else if (o.InstrumentTabParser == "bass")
-                {
-                    // instrumentTabParser = new BassTabParser();
-                }
                 else
                 {
-                    Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
-                    return;
-                }
-                
-                IInstrumentTabBuilder instrumentTabBuilder = new BanjoTabBuilder();
-                
-                if (o.OutputStringNames != string.Empty && o.OutputStringOffsets != string.Empty)
-                {
-                    string[] stringNames = o.OutputStringNames.Split(';');
-                    string[] stringOffsetsAsStrings = o.OutputStringOffsets.Split(';');
-                    if (stringNames.Length != stringOffsetsAsStrings.Length)
+                    switch (o.InstrumentTabParser)
                     {
-                        Console.Error.WriteLine("Invalid number of string names and string offsets.");
-                        return;
-                    }
+                        case "guitar":
+                            instrumentTabParser = new GuitarTabParser();
+                            break;
+                        case "bass":
+                            instrumentTabParser = new BassTabParser();
+                            break;
+                        default:
+                            Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
+                            return;
+                    }   
+                }
 
+                
+                IInstrumentTabBuilder instrumentTabBuilder;
+                
+                if (o.OutputTuning != string.Empty)
+                {
+                    string[] stringNames;
                     int[] stringOffsets;
+                    
                     try
                     {
-                        stringOffsets = Array.ConvertAll(stringOffsetsAsStrings, int.Parse);
+                        (stringNames, stringOffsets) = TuningReader.Read(o.InputTuning);
+                    }
+                    catch (IOException)
+                    {
+                        Console.Error.WriteLine("Could not open tuning file.");
+                        return;
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.Error.WriteLine("Could not open tuning file. (insufficient rights)");
+                        return;
                     }
                     catch (FormatException)
                     {
-                        Console.Error.WriteLine("Invalid string offsets (tuning)");
+                        Console.Error.WriteLine("Invalid tuning file.");
                         return;
                     }
+                    
                     switch (o.InstrumentTabBuilder)
                     {
-                        case "":
-                            instrumentTabBuilder = new BanjoTabBuilder(stringNames, stringOffsets);
-                            break;
                         case "banjo":
                             instrumentTabBuilder = new BanjoTabBuilder(stringNames, stringOffsets);
                             break;
                         case "bass":
-                            // instrumentTabBuilder = new BassTabParser(stringNames, stringOffsets);
+                            instrumentTabBuilder = new BassTabBuilder(stringNames, stringOffsets);
                             break;
                         default:
                             Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
                             return;
                     }
                 }
-                else if (o.InstrumentTabBuilder == "")
-                {
-                    instrumentTabBuilder = new BanjoTabBuilder();
-                }
-                else if (o.InstrumentTabBuilder == "banjo")
-                {
-                    instrumentTabBuilder = new BanjoTabBuilder();
-                }
-                else if (o.InstrumentTabParser == "bass")
-                {
-                    instrumentTabBuilder = new BassTabBuilder();
-                }
                 else
                 {
-                    Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
-                    return;
+                    switch (o.InstrumentTabBuilder)
+                    {
+                        case "banjo":
+                            instrumentTabBuilder = new BanjoTabBuilder();
+                            break;
+                        case "bass":
+                            instrumentTabBuilder = new BassTabBuilder();
+                            break;
+                        default:
+                            Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
+                            return;
+                    }
                 }
 
                 #endregion
@@ -167,9 +160,9 @@ namespace TablatureConverter
                 #region Tab parsing
 
                 /*
-                 * Parses the tabulature from the input file, transposes it and writes the result to the output file.
-                 * The tabulature is parsed by the corresponding IInstrumentTabParser.
-                 * Then it is rewritten into tabulature for a different instrument by IInstrumentTabBuilder.
+                 * Parses the tablature from the input file, transposes it and writes the result to the output file.
+                 * The tablature is parsed by the corresponding IInstrumentTabParser.
+                 * Then it is rewritten into tablature for a different instrument by IInstrumentTabBuilder.
                  */
 
                 try
@@ -190,7 +183,7 @@ namespace TablatureConverter
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    Console.WriteLine("Could not open file.");
+                    Console.WriteLine("Could not open file. (insufficient rights");
                 }
 
                 #endregion
