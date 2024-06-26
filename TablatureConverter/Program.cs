@@ -40,7 +40,7 @@ namespace TablatureConverter
                 
                 if (o.OutputFileName == string.Empty)
                 {
-                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, $".{o.InstrumentTabBuilder}.txt");
+                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, $".{o.InstrumentTabBuilder}.tab");
                 }
 
                 IInstrumentTabParser instrumentTabParser;
@@ -108,7 +108,7 @@ namespace TablatureConverter
                     
                     try
                     {
-                        (stringNames, stringOffsets) = TuningReader.Read(o.InputTuning);
+                        (stringNames, stringOffsets) = TuningReader.Read(o.OutputTuning);
                     }
                     catch (IOException)
                     {
@@ -128,6 +128,9 @@ namespace TablatureConverter
                     
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "generic_string":
+                            instrumentTabBuilder = new GenericStringInstrumentTabBuilder(stringNames, stringOffsets);
+                            break;
                         case "guitar":
                             instrumentTabBuilder = new GuitarTabBuilder(stringNames, stringOffsets);
                             break;
@@ -146,6 +149,9 @@ namespace TablatureConverter
                 {
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "generic_string":
+                            Console.Error.WriteLine("Tuning has to be specified for generic string instrument.");
+                            return;
                         case "guitar":
                             instrumentTabBuilder = new GuitarTabBuilder();
                             break;
