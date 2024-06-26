@@ -2,7 +2,7 @@ using System;
 
 namespace TablatureConverter.Classes;
 
-public class NoteFinder
+public static class NoteFinder
 {
     public static (int instrumentString, int fret) Find(Note note, int[] stringOffsets, bool[] availableStrings, int forcedString = -1)
     {
@@ -27,7 +27,7 @@ public class NoteFinder
         
         int semitones = note.GetSemitones();
         int bestString = -1;
-        int bestFret = Int32.MaxValue;
+        int bestFret = int.MaxValue;
 
         for (int i = 0; i < availableStrings.Length; ++i)
         {

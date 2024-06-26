@@ -25,7 +25,16 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
         #region Sort and group musical parts by start
         
         MusicalPart[] sortedMusicalParts = musicalParts.ToArray();
-        Array.Sort(sortedMusicalParts, (a, b) => a.Start.CompareTo(b.Start));
+        Array.Sort(sortedMusicalParts, (a, b) =>
+        {
+            int primaryComparison = a.Start.CompareTo(b.Start);
+            if (primaryComparison != 0)
+            {
+                return primaryComparison;
+            }
+            // Sort by lowest note if start is the same
+            return a.LowestNote.GetSemitones().CompareTo(b.LowestNote.GetSemitones()); 
+        });
         
         var groupsByStart =
             from musicalPart in sortedMusicalParts
@@ -41,8 +50,11 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
 
         foreach (var group in groupsByStart)
         {
-            bool[] availableStrings = new bool[] { true, true, true, true };
-            int longestPart = 0;
+            bool[] availableStrings = new bool[Strings.Length];
+            for (int i = 0; i < availableStrings.Length; ++i)
+            {
+                availableStrings[i] = true;
+            }
             bool isSeparator = false;
             foreach (var musicalPart in group)
             {
@@ -62,6 +74,18 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
                     // Find the string that the lowest note in the part can be played on
                     stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + transpose*Constants.TonesInOctave),
                         StringOffsets, availableStrings).instrumentString;
+                }
+                else
+                {
+                    // If the part is only techniques, find the first available string
+                    for (int i = 0; i < availableStrings.Length; ++i)
+                    {
+                        if (availableStrings[i])
+                        {
+                            stringIndex = i;
+                            break;
+                        }
+                    }
                 }
 
                 if (stringIndex != -1)
@@ -93,7 +117,7 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
             } else
             {
                 // Fill the rest of the strings with dashes
-                longestPart = strings.OrderByDescending(s => s.Length).First().Length;
+                int longestPart = strings.Max(s => s.Length);
                 for (int i = 0; i < strings.Length; ++i)
                 {
                     strings[i].Append('-', (longestPart - strings[i].Length) + 1);
@@ -101,7 +125,7 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
             }
         }
         
-        // Build the tabulature string
+        // Build the tablature string
         StringBuilder tab = new StringBuilder();
         tab.AppendLine($"Transposed by: {transpose} octaves");
         for (int i = 0; i < strings.Length; ++i)
@@ -118,7 +142,7 @@ public abstract class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
         return tab.ToString();
     }
     
-    protected virtual int CalculateTranspose(Note lowestNote)
+    protected int CalculateTranspose(Note lowestNote)
     {
         // Calculate the number of octaves needed to transpose so the tab can be played on the instrument
         int transpose = 0;
@@ -195,7 +219,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
                 }
 
                 int stringIndex = -1;
-                if (musicalPart.LowestNote.GetSemitones() != Int32.MaxValue)
+                if (musicalPart.LowestNote.GetSemitones() != Int32.MinValue)
                 {
                     // Find the string that the lowest note in the part can be played on
                     stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + transpose*Constants.TonesInOctave),
@@ -257,6 +281,16 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
     }
 }
 
+public class GuitarTabBuilder : GenericStringInstrumentTabBuilder
+{
+    public GuitarTabBuilder(string[] stringNames, int[] stringOffsets) : base(stringNames, stringOffsets)
+    {
+    }
+    
+    public GuitarTabBuilder() : base(["e", "B", "G", "D", "A", "E"], [52, 47, 43, 38, 33, 28])
+    {
+    }
+}
 
 public class BassTabBuilder : GenericStringInstrumentTabBuilder
 {

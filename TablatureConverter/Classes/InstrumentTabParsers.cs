@@ -65,7 +65,7 @@ public class GuitarTabParser : IInstrumentTabParser
     {
         List<MusicalPart> parsedTabulature = new List<MusicalPart>();
         string[] stringTabs = tabulature.Split('\n');
-        Note lowestNote = Note.FromSemitones(Int32.MaxValue);
+        Note lowestNote = Note.FromSemitones(int.MaxValue);
         // Greedily matches anything that is not a dash
         Regex musicalPartRegex = new Regex(@"[^-]+");
         for (int i = 0; i < _strings.Length; ++i)

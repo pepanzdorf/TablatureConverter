@@ -68,7 +68,7 @@ public class MusicalPartParserTests
         Assert.Equal(15, musicalPart.Start);
         Assert.Single(musicalPart.Symbols, item => item is Technique);
         Assert.Equal("h", ((Technique)musicalPart.Symbols[0]).Name);
-        Assert.Equal(Int32.MaxValue, musicalPart.LowestNote.GetSemitones());
+        Assert.Equal(int.MaxValue, musicalPart.LowestNote.GetSemitones());
     }
 
     [Fact]

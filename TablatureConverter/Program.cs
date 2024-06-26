@@ -128,6 +128,9 @@ namespace TablatureConverter
                     
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "guitar":
+                            instrumentTabBuilder = new GuitarTabBuilder(stringNames, stringOffsets);
+                            break;
                         case "banjo":
                             instrumentTabBuilder = new BanjoTabBuilder(stringNames, stringOffsets);
                             break;
@@ -143,6 +146,9 @@ namespace TablatureConverter
                 {
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "guitar":
+                            instrumentTabBuilder = new GuitarTabBuilder();
+                            break;
                         case "banjo":
                             instrumentTabBuilder = new BanjoTabBuilder();
                             break;
