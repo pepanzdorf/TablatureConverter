@@ -5,54 +5,43 @@ using TablatureConverter.Interfaces;
 
 namespace TablatureConverter.Classes;
 
-public class GuitarTabParser : IInstrumentTabParser
-{
-    private readonly string[] _strings;
-    private readonly int[] _stringOffsets;
-    private int _currentString = 0;
 
-    public GuitarTabParser()
-    {
-        _strings = new string[] { "e", "B", "G", "D", "A", "E" };
-        _stringOffsets = new int[] { 52, 47, 43, 38, 33, 28 };
-    }
+public class GenericStringInstrumentTabParser : IInstrumentTabParser
+{
+    protected string[] Strings { get; }
+    protected int[] StringOffsets { get; }
+    protected int CurrentString { get; set; } = 0;
     
-    public GuitarTabParser(string[] strings, int[] stringOffsets)
+    public GenericStringInstrumentTabParser(string[] strings, int[] stringOffsets)
     {
-        _strings = strings;
-        _stringOffsets = stringOffsets;
+        Strings = strings;
+        StringOffsets = stringOffsets;
     }
     
     public bool IsPartOfInstrumentTab(string line)
     {
-        if (_currentString == _strings.Length)
-        {
-            _currentString = 0;
-            return false;
-        }
-        
         if (line.Length < 2)
         {
             return false;
         }
 
-        if (line[..2] == _strings[_currentString] + "|")
+        if (line[..2] == Strings[CurrentString] + "|")
         {
-            ++_currentString;
+            ++CurrentString;
             return true;
         }
         else
         {
-            _currentString = 0;
+            CurrentString = 0;
             return false;
         }
     }
     
     public bool TabIsComplete()
     {
-        if (_currentString == _strings.Length)
+        if (CurrentString == Strings.Length)
         {
-            _currentString = 0;
+            CurrentString = 0;
             return true;
         }
         else
@@ -61,112 +50,52 @@ public class GuitarTabParser : IInstrumentTabParser
         }
     }
     
-    public (List<MusicalPart>, Note lowestNote) Parse(string tabulature)
+    public virtual (List<MusicalPart>, Note lowestNote) Parse(string tablature)
     {
-        List<MusicalPart> parsedTabulature = new List<MusicalPart>();
-        string[] stringTabs = tabulature.Split('\n');
+        List<MusicalPart> parsedTablature = new List<MusicalPart>();
+        string[] stringTabs = tablature.Split('\n');
         Note lowestNote = Note.FromSemitones(int.MaxValue);
         // Greedily matches anything that is not a dash
         Regex musicalPartRegex = new Regex(@"[^-]+");
-        for (int i = 0; i < _strings.Length; ++i)
+        for (int i = 0; i < Strings.Length; ++i)
         {
             // Match all musical parts on the current string
             MatchCollection matched = musicalPartRegex.Matches(stringTabs[i][2..]);
             foreach (Match match in matched)
             {
                 // Parse the musical part and get the lowest note in it
-                MusicalPart musicalPart = MusicalPartParser.Parse(match.Value, _stringOffsets[i], match.Index);
+                MusicalPart musicalPart = MusicalPartParser.Parse(match.Value, StringOffsets[i], match.Index);
                 if (musicalPart.LowestNote.GetSemitones() < lowestNote.GetSemitones())
                 {
-                    // Update the lowest note in the tabulature
+                    // Update the lowest note in the tablature
                     lowestNote = musicalPart.LowestNote;
                 }
-                parsedTabulature.Add(musicalPart);
+                parsedTablature.Add(musicalPart);
             }
         }
-        return (parsedTabulature, lowestNote);
+        return (parsedTablature, lowestNote);
     }
 }
 
-public class BassTabParser : IInstrumentTabParser
+
+public class GuitarTabParser : GenericStringInstrumentTabParser
 {
-    private readonly string[] _strings;
-    private readonly int[] _stringOffsets;
-    private int _currentString = 0;
+    public GuitarTabParser() : base(["e", "B", "G", "D", "A", "E"], [52, 47, 43, 38, 33, 28])
+    {
+    }
 
-    public BassTabParser()
+    public GuitarTabParser(string[] strings, int[] stringOffsets) : base(strings, stringOffsets)
     {
-        _strings = new string[] { "G", "D", "A", "E" };
-        _stringOffsets = new int[] { 31, 26, 21, 16 };
     }
-    
-    public BassTabParser(string[] strings, int[] stringOffsets)
-    {
-        _strings = strings;
-        _stringOffsets = stringOffsets;
-    }
-    
-    public bool IsPartOfInstrumentTab(string line)
-    {
-        if (_currentString == _strings.Length)
-        {
-            _currentString = 0;
-            return false;
-        }
-        
-        if (line.Length < 2)
-        {
-            return false;
-        }
+}
 
-        if (line[..2] == _strings[_currentString] + "|")
-        {
-            ++_currentString;
-            return true;
-        }
-        else
-        {
-            _currentString = 0;
-            return false;
-        }
+public class BassTabParser : GenericStringInstrumentTabParser
+{
+    public BassTabParser() : base(["G", "D", "A", "E"], [31, 26, 21, 16])
+    {
     }
     
-    public bool TabIsComplete()
+    public BassTabParser(string[] strings, int[] stringOffsets) : base(strings, stringOffsets)
     {
-        if (_currentString == _strings.Length)
-        {
-            _currentString = 0;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    public (List<MusicalPart>, Note lowestNote) Parse(string tabulature)
-    {
-        List<MusicalPart> parsedTabulature = new List<MusicalPart>();
-        string[] stringTabs = tabulature.Split('\n');
-        Note lowestNote = Note.FromSemitones(Int32.MaxValue);
-        // Greedily matches anything that is not a dash
-        Regex musicalPartRegex = new Regex(@"[^-]+");
-        for (int i = 0; i < _strings.Length; ++i)
-        {
-            // Match all musical parts on the current string
-            MatchCollection matched = musicalPartRegex.Matches(stringTabs[i][2..]);
-            foreach (Match match in matched)
-            {
-                // Parse the musical part and get the lowest note in it
-                MusicalPart musicalPart = MusicalPartParser.Parse(match.Value, _stringOffsets[i], match.Index);
-                if (musicalPart.LowestNote.GetSemitones() < lowestNote.GetSemitones())
-                {
-                    // Update the lowest note in the tabulature
-                    lowestNote = musicalPart.LowestNote;
-                }
-                parsedTabulature.Add(musicalPart);
-            }
-        }
-        return (parsedTabulature, lowestNote);
     }
 }

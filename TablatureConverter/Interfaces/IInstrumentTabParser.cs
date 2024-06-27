@@ -7,5 +7,5 @@ public interface IInstrumentTabParser
 {
     bool IsPartOfInstrumentTab(string line);
     bool TabIsComplete();
-    (List<MusicalPart>, Note lowestNote) Parse(string tabulature);
+    (List<MusicalPart>, Note lowestNote) Parse(string tablature);
 }

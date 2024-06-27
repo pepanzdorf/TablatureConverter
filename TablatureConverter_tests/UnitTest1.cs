@@ -1,4 +1,4 @@
-namespace TabulatureConverter_tests;
+namespace TablatureConverter_tests;
 
 public class NoteTests
 {

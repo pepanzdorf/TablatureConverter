@@ -13,7 +13,7 @@ public static class MusicalPartParser
         Regex musicalPartRegex = new Regex(@"\d+|[^\d]+");
         MusicalPart musicalPart = new MusicalPart();
         musicalPart.Start = foundAt;
-        Note lowestNote = Note.FromSemitones(Int32.MaxValue);
+        Note lowestNote = Note.FromSemitones(int.MaxValue);
         var symbols = new List<IMusicalSymbol>();
         var matches = musicalPartRegex.Matches(musicalString);
         for (int i = 0; i < matches.Count; ++i)

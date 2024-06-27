@@ -11,7 +11,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
 {
     protected string[] Strings { get; }
     protected int[] StringOffsets { get; }
-    private int _transpose;
+    protected int Transpose {get; set; }
 
     public GenericStringInstrumentTabBuilder(string[] stringNames, int[] stringOffsets)
     {
@@ -21,7 +21,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
 
     public virtual string Build(List<MusicalPart> musicalParts, Note lowestNote)
     {
-        _transpose = CalculateTranspose(lowestNote);
+        Transpose = CalculateTranspose(lowestNote);
         
         var groupsByStart = GroupByStart(musicalParts);
         
@@ -55,7 +55,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
                 if (musicalPart.LowestNote.GetSemitones() != Int32.MaxValue)
                 {
                     // Find the string that the lowest note in the part can be played on
-                    stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + _transpose*Constants.TonesInOctave),
+                    stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + Transpose*Constants.TonesInOctave),
                         StringOffsets, availableStrings).instrumentString;
                 }
                 else
@@ -79,7 +79,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
                     {
                         if (symbol is Note note)
                         {
-                            note.Transpose(_transpose*Constants.TonesInOctave);
+                            note.Transpose(Transpose*Constants.TonesInOctave);
                             int fret = NoteFinder.Find(note, StringOffsets, availableStrings, stringIndex).fret;
                             strings[stringIndex].Append($"{fret}");
                         }
@@ -148,7 +148,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
     protected string BuildTabFromStrings(StringBuilder[] strings)
     {
         StringBuilder tab = new StringBuilder();
-        tab.AppendLine($"Transposed by: {_transpose} octaves");
+        tab.AppendLine($"Transposed by: {Transpose} octaves");
         for (int i = 0; i < strings.Length; ++i)
         {
             if (i == strings.Length - 1)
@@ -177,7 +177,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
     
     public override string Build(List<MusicalPart> musicalParts, Note lowestNote)
     {
-        int transpose = CalculateTranspose(lowestNote);
+        Transpose = CalculateTranspose(lowestNote);
 
         var groupsByStart = GroupByStart(musicalParts);
         
@@ -198,7 +198,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
                 if (musicalPart.Symbols.Count == 1 && musicalPart.Symbols[0] is Note singleNote)
                 {
                     // Special case for open G on banjo
-                    if (singleNote.GetSemitones() + transpose*Constants.TonesInOctave == 55 && gIsAvailable)
+                    if (singleNote.GetSemitones() + Transpose*Constants.TonesInOctave == 55 && gIsAvailable)
                     {
                         strings[4].Append('0');
                         gIsAvailable = false;
@@ -220,7 +220,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
                 if (musicalPart.LowestNote.GetSemitones() != Int32.MinValue)
                 {
                     // Find the string that the lowest note in the part can be played on
-                    stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + transpose*Constants.TonesInOctave),
+                    stringIndex = NoteFinder.Find(Note.FromSemitones(musicalPart.LowestNote.GetSemitones() + Transpose*Constants.TonesInOctave),
                         StringOffsets, availableStrings).instrumentString;
                 }
 
@@ -232,7 +232,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
                     {
                         if (symbol is Note note)
                         {
-                            note.Transpose(transpose*Constants.TonesInOctave);
+                            note.Transpose(Transpose*Constants.TonesInOctave);
                             int fret = NoteFinder.Find(note, StringOffsets, availableStrings, stringIndex).fret;
                             strings[stringIndex].Append($"{fret}");
                         }

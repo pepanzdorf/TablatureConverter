@@ -71,6 +71,9 @@ namespace TablatureConverter
 
                     switch (o.InstrumentTabParser)
                     {
+                        case "generic_string":
+                            instrumentTabParser = new GenericStringInstrumentTabParser(stringNames, stringOffsets);
+                            break;
                         case "guitar":
                             instrumentTabParser = new GuitarTabParser(stringNames, stringOffsets);
                             break;
@@ -86,6 +89,9 @@ namespace TablatureConverter
                 {
                     switch (o.InstrumentTabParser)
                     {
+                        case "generic_string":
+                            Console.Error.WriteLine("Tuning has to be specified for generic string instrument.");
+                            return;
                         case "guitar":
                             instrumentTabParser = new GuitarTabParser();
                             break;
