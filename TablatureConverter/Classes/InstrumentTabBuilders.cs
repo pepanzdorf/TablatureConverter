@@ -289,10 +289,6 @@ public class NoteNameBuilder : IInstrumentTabBuilder
                     {
                         rows[i].Append($"{Note.NoteNameToString(note.GetNote())}{note.GetOctave()} ");
                     }
-                    else if (symbol is Technique)
-                    {
-                        rows[i].Append(' ');
-                    }
                 }
             }
             
@@ -305,9 +301,21 @@ public class NoteNameBuilder : IInstrumentTabBuilder
 
         
         StringBuilder tab = new StringBuilder();
-        foreach (var t in rows)
+        
+        for (var i = 0; i < rows.Length; ++i)
         {
-            tab.AppendLine(t.ToString());
+            string rowString = rows[i].ToString();
+            
+            if (rowString.Trim().Length == 0)
+            {
+                continue;
+            }
+            if (i > 0)
+            {
+                tab.AppendLine();
+            }
+            tab.Append(rowString);
+            tab.Append('|');
         }
         return tab.ToString();
     }
