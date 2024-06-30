@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TablatureConverter.Interfaces;
 
@@ -38,5 +39,26 @@ public static class MusicalPartParser
         musicalPart.Symbols = symbols;
         musicalPart.LowestNote = lowestNote;
         return musicalPart;
+    }
+    
+    public static IGrouping<int, MusicalPart>[] GroupByStart(List<MusicalPart> musicalParts)
+    {
+        MusicalPart[] sortedMusicalParts = musicalParts.ToArray();
+        Array.Sort(sortedMusicalParts, (a, b) =>
+        {
+            int primaryComparison = a.Start.CompareTo(b.Start);
+            if (primaryComparison != 0)
+            {
+                return primaryComparison;
+            }
+            // Sort by lowest note if start is the same
+            return a.LowestNote.GetSemitones().CompareTo(b.LowestNote.GetSemitones()); 
+        });
+        
+        var groupsByStart =
+            from musicalPart in sortedMusicalParts
+            group musicalPart by musicalPart.Start;
+        
+        return groupsByStart.ToArray();
     }
 }

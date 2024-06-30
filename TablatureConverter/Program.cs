@@ -134,6 +134,9 @@ namespace TablatureConverter
                     
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "notes":
+                            instrumentTabBuilder = new NoteNameBuilder();
+                            break;
                         case "generic_string":
                             instrumentTabBuilder = new GenericStringInstrumentTabBuilder(stringNames, stringOffsets);
                             break;
@@ -155,6 +158,9 @@ namespace TablatureConverter
                 {
                     switch (o.InstrumentTabBuilder)
                     {
+                        case "notes":
+                            instrumentTabBuilder = new NoteNameBuilder();
+                            break;
                         case "generic_string":
                             Console.Error.WriteLine("Tuning has to be specified for generic string instrument.");
                             return;

@@ -27,6 +27,8 @@ public enum NoteName
     B,
 }
 
+
+
 public class Note(NoteName note, int octave) : IMusicalSymbol, INote
 {
     public void Transpose(int semitones)
@@ -61,4 +63,21 @@ public class Note(NoteName note, int octave) : IMusicalSymbol, INote
     {
         return new Note((NoteName)(semitones % Constants.TonesInOctave), semitones / Constants.TonesInOctave);
     }
+
+    public static string NoteNameToString(NoteName note) => note switch
+    {
+        NoteName.C => "C",
+        NoteName.CSharp => "C#",
+        NoteName.D => "D",
+        NoteName.DSharp => "D#",
+        NoteName.E => "E",
+        NoteName.F => "F",
+        NoteName.FSharp => "F#",
+        NoteName.G => "G",
+        NoteName.GSharp => "G#",
+        NoteName.A => "A",
+        NoteName.ASharp => "A#",
+        NoteName.B => "B",
+        _ => throw new ArgumentOutOfRangeException(nameof(note), note, null)
+    };
 }

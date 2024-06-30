@@ -23,7 +23,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
     {
         Transpose = CalculateTranspose(lowestNote);
         
-        var groupsByStart = GroupByStart(musicalParts);
+        var groupsByStart = MusicalPartParser.GroupByStart(musicalParts);
         
         StringBuilder[] strings = new StringBuilder[Strings.Length];
         for (int i = 0; i < strings.Length; ++i)
@@ -124,27 +124,6 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
         return transpose;
     }
     
-    protected IGrouping<int, MusicalPart>[] GroupByStart(List<MusicalPart> musicalParts)
-    {
-        MusicalPart[] sortedMusicalParts = musicalParts.ToArray();
-        Array.Sort(sortedMusicalParts, (a, b) =>
-        {
-            int primaryComparison = a.Start.CompareTo(b.Start);
-            if (primaryComparison != 0)
-            {
-                return primaryComparison;
-            }
-            // Sort by lowest note if start is the same
-            return a.LowestNote.GetSemitones().CompareTo(b.LowestNote.GetSemitones()); 
-        });
-        
-        var groupsByStart =
-            from musicalPart in sortedMusicalParts
-            group musicalPart by musicalPart.Start;
-        
-        return groupsByStart.ToArray();
-    }
-    
     protected string BuildTabFromStrings(StringBuilder[] strings)
     {
         StringBuilder tab = new StringBuilder();
@@ -179,7 +158,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
     {
         Transpose = CalculateTranspose(lowestNote);
 
-        var groupsByStart = GroupByStart(musicalParts);
+        var groupsByStart = MusicalPartParser.GroupByStart(musicalParts);
         
         StringBuilder[] strings = new StringBuilder[Strings.Length];
         for (int i = 0; i < strings.Length; ++i)
@@ -284,5 +263,52 @@ public class BassTabBuilder : GenericStringInstrumentTabBuilder
     
     public BassTabBuilder() : base(["G", "D", "A", "E"], [31, 26, 21, 16])
     {
+    }
+}
+
+public class NoteNameBuilder : IInstrumentTabBuilder
+{
+    public string Build(List<MusicalPart> musicalParts, Note lowestNote)
+    {
+        var groupsByStart = MusicalPartParser.GroupByStart(musicalParts);
+        int biggestGroup = groupsByStart.Max(g => g.Count());
+        StringBuilder[] rows = new StringBuilder[biggestGroup];
+        for (int i = 0; i < rows.Length; ++i)
+        {
+            rows[i] = new StringBuilder();
+        }
+        
+        foreach (var group in groupsByStart)
+        {
+            for (var i = 0; i < group.Count(); ++i)
+            {
+                var part = group.ElementAt(i);
+                foreach (var symbol in part.Symbols)
+                {
+                    if (symbol is Note note)
+                    {
+                        rows[i].Append($"{Note.NoteNameToString(note.GetNote())}{note.GetOctave()} ");
+                    }
+                    else if (symbol is Technique)
+                    {
+                        rows[i].Append(' ');
+                    }
+                }
+            }
+            
+            int longestRow = rows.Max(r => r.Length);
+            foreach (var row in rows)
+            {
+                row.Append(' ', longestRow - row.Length);
+            }
+        }
+
+        
+        StringBuilder tab = new StringBuilder();
+        foreach (var t in rows)
+        {
+            tab.AppendLine(t.ToString());
+        }
+        return tab.ToString();
     }
 }
