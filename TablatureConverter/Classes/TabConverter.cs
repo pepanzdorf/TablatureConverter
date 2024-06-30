@@ -11,17 +11,17 @@ public class TabConverter
 {
     private readonly TextReader _tabSource;
     private readonly IInstrumentTabParser _instrumentTabParser;
-    private readonly IInstrumentTabBuilder _instrumentTabBuilder;
+    private readonly IInstrumentTabBuilder[] _instrumentTabBuilders;
     private readonly TextWriter _tabOutput;
     private readonly int _transposeSemitones;
     private readonly StringBuilder _buffer = new StringBuilder();
     
-    public TabConverter(TextReader tabSource, TextWriter tabOutput,IInstrumentTabParser instrumentTabParser, IInstrumentTabBuilder instrumentTabBuilder, int transposeSemitones)
+    public TabConverter(TextReader tabSource, TextWriter tabOutput,IInstrumentTabParser instrumentTabParser, IInstrumentTabBuilder[] instrumentTabBuilders, int transposeSemitones)
     {
         _tabSource = tabSource;
         _tabOutput = tabOutput;
         _instrumentTabParser = instrumentTabParser;
-        _instrumentTabBuilder = instrumentTabBuilder;
+        _instrumentTabBuilders = instrumentTabBuilders;
         _transposeSemitones = transposeSemitones;
     }
     
@@ -36,9 +36,17 @@ public class TabConverter
             (List<MusicalPart> parsedTablature, Note lowestNote) = _instrumentTabParser.Parse(separatedTablature);
             // Then we transpose it
             Transpose(parsedTablature);
-            // Then we build it and write it to output
-            _tabOutput.Write(_instrumentTabBuilder.Build(parsedTablature, lowestNote));
-            // Then we write the extra stuff that was after the tablature
+            // Then we build for each instrument it and write it to output
+            for (var i = 0; i < _instrumentTabBuilders.Length; i++)
+            {
+                IInstrumentTabBuilder builder = _instrumentTabBuilders[i];
+                _tabOutput.Write(builder.Build(parsedTablature, lowestNote));
+                if (i < _instrumentTabBuilders.Length - 1)
+                {
+                    _tabOutput.WriteLine("\n");
+                }
+            }
+            // Then we write the extra stuff that was after the tablature (only once)
             _tabOutput.WriteLine(extra);
             _buffer.Clear();
         }

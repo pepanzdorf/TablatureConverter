@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CommandLine;
 using TablatureConverter.Classes;
 using TablatureConverter.Interfaces;
@@ -20,8 +22,8 @@ namespace TablatureConverter
         [Option('p', "parser", Required = false, Default = "guitar", HelpText = "Instrument the original tab is for.")]
         public string InstrumentTabParser { get; set; } = "guitar";
         
-        [Option('b', "builder", Required = false, Default = "banjo", HelpText = "Instrument the new tab is for.")]
-        public string InstrumentTabBuilder { get; set; } = "banjo";
+        [Option('b', "builders", Separator = ' ', Required = false, HelpText = "Instrument the new tab is for.")]
+        public IEnumerable<string> InstrumentTabBuilders { get; set; } = ["banjo"];
         
         [Option("input-tuning", Required = false, Default = "", HelpText = "Name of the tuning file of the chosen input instrument. (alternative tuning)")]
         public string InputTuning { get; set; } = string.Empty;
@@ -40,7 +42,12 @@ namespace TablatureConverter
                 
                 if (o.OutputFileName == string.Empty)
                 {
-                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, $".{o.InstrumentTabBuilder}.tab");
+                    string extension = "";
+                    foreach (string instrument in o.InstrumentTabBuilders)
+                    {
+                        extension += instrument + ".";
+                    }
+                    o.OutputFileName = Path.ChangeExtension(o.InputFileName, $".{extension}tab");
                 }
 
                 IInstrumentTabParser instrumentTabParser;
@@ -105,10 +112,23 @@ namespace TablatureConverter
                 }
 
                 
-                IInstrumentTabBuilder instrumentTabBuilder;
+                string[] instrumentTabBuilderStrings = o.InstrumentTabBuilders.ToArray();
+                IInstrumentTabBuilder[] instrumentTabBuilders = new IInstrumentTabBuilder[instrumentTabBuilderStrings.Length];
+                
+                if (instrumentTabBuilderStrings.Length == 0)
+                {
+                    Console.Error.WriteLine("No output instrument specified.");
+                    return;
+                }
                 
                 if (o.OutputTuning != string.Empty)
                 {
+                    if (instrumentTabBuilderStrings.Length > 1)
+                    {
+                        Console.Error.WriteLine("Only one instrument can be used if tuning is specified.");
+                        return;
+                    }
+                    
                     string[] stringNames;
                     int[] stringOffsets;
                     
@@ -132,50 +152,53 @@ namespace TablatureConverter
                         return;
                     }
                     
-                    switch (o.InstrumentTabBuilder)
+                    switch (instrumentTabBuilderStrings[0])
                     {
                         case "notes":
-                            instrumentTabBuilder = new NoteNameBuilder();
+                            instrumentTabBuilders[0] = new NoteNameBuilder();
                             break;
                         case "generic_string":
-                            instrumentTabBuilder = new GenericStringInstrumentTabBuilder(stringNames, stringOffsets);
+                            instrumentTabBuilders[0] = new GenericStringInstrumentTabBuilder(stringNames, stringOffsets);
                             break;
                         case "guitar":
-                            instrumentTabBuilder = new GuitarTabBuilder(stringNames, stringOffsets);
+                            instrumentTabBuilders[0] = new GuitarTabBuilder(stringNames, stringOffsets);
                             break;
                         case "banjo":
-                            instrumentTabBuilder = new BanjoTabBuilder(stringNames, stringOffsets);
+                            instrumentTabBuilders[0] = new BanjoTabBuilder(stringNames, stringOffsets);
                             break;
                         case "bass":
-                            instrumentTabBuilder = new BassTabBuilder(stringNames, stringOffsets);
+                            instrumentTabBuilders[0] = new BassTabBuilder(stringNames, stringOffsets);
                             break;
                         default:
-                            Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
+                            Console.Error.WriteLine($"Invalid instrument {instrumentTabBuilderStrings[0]}.");
                             return;
                     }
                 }
                 else
                 {
-                    switch (o.InstrumentTabBuilder)
+                    for (var i = 0; i < instrumentTabBuilderStrings.Length; i++)
                     {
-                        case "notes":
-                            instrumentTabBuilder = new NoteNameBuilder();
-                            break;
-                        case "generic_string":
-                            Console.Error.WriteLine("Tuning has to be specified for generic string instrument.");
-                            return;
-                        case "guitar":
-                            instrumentTabBuilder = new GuitarTabBuilder();
-                            break;
-                        case "banjo":
-                            instrumentTabBuilder = new BanjoTabBuilder();
-                            break;
-                        case "bass":
-                            instrumentTabBuilder = new BassTabBuilder();
-                            break;
-                        default:
-                            Console.Error.WriteLine($"Invalid instrument {o.InstrumentTabParser}.");
-                            return;
+                        switch (instrumentTabBuilderStrings[i])
+                        {
+                            case "notes":
+                                instrumentTabBuilders[i] = new NoteNameBuilder();
+                                break;
+                            case "generic_string":
+                                Console.Error.WriteLine("Tuning has to be specified for generic string instrument.");
+                                return;
+                            case "guitar":
+                                instrumentTabBuilders[i] = new GuitarTabBuilder();
+                                break;
+                            case "banjo":
+                                instrumentTabBuilders[i] = new BanjoTabBuilder();
+                                break;
+                            case "bass":
+                                instrumentTabBuilders[i] = new BassTabBuilder();
+                                break;
+                            default:
+                                Console.Error.WriteLine($"Invalid instrument {instrumentTabBuilderStrings[i]}.");
+                                return;
+                        }
                     }
                 }
 
@@ -196,7 +219,7 @@ namespace TablatureConverter
                         using (StreamWriter tabOutput = new StreamWriter(o.OutputFileName))
                         {
                             TabConverter tabConverter = new TabConverter(tabSource, tabOutput, instrumentTabParser,
-                                instrumentTabBuilder, o.TransposeSemitones);
+                                instrumentTabBuilders, o.TransposeSemitones);
                             tabConverter.Parse();
                         }
                     }
