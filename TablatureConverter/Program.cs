@@ -22,7 +22,7 @@ namespace TablatureConverter
         [Option('p', "parser", Required = false, Default = "guitar", HelpText = "Instrument the original tab is for.")]
         public string InstrumentTabParser { get; set; } = "guitar";
         
-        [Option('b', "builders", Separator = ' ', Required = false, Default = new []{"banjo"}, HelpText = "Instrument the new tab is for.")]
+        [Option('b', "builders", Separator = ' ', Required = false, Default = new []{"banjo"}, HelpText = "Instrument the new tab is for. Multiple instruments can be specified.")]
         public IEnumerable<string> InstrumentTabBuilders { get; set; } = ["banjo"];
         
         [Option("input-tuning", Required = false, Default = "", HelpText = "Name of the tuning file of the chosen input instrument. (alternative tuning)")]
@@ -164,6 +164,11 @@ namespace TablatureConverter
                             instrumentTabBuilders[0] = new GuitarTabBuilder(stringNames, stringOffsets);
                             break;
                         case "banjo":
+                            if (stringNames.Length != 5)
+                            {
+                                Console.Error.WriteLine("Banjo tuning has to have 5 strings.");
+                                return;
+                            }
                             instrumentTabBuilders[0] = new BanjoTabBuilder(stringNames, stringOffsets);
                             break;
                         case "bass":
