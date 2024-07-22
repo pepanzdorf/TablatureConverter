@@ -230,7 +230,7 @@ namespace TablatureConverter
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    Console.WriteLine("Could not open file. (insufficient rights");
+                    Console.WriteLine("Could not open file. (insufficient rights)");
                 }
 
                 #endregion

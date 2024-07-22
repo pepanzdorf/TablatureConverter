@@ -29,7 +29,7 @@ public enum NoteName
 
 
 
-public class Note(NoteName note, int octave) : IMusicalSymbol, INote
+public class Note(NoteName note, int octave) : IMusicalSymbol
 {
     public void Transpose(int semitones)
     {

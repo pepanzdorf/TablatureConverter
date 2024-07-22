@@ -16,7 +16,8 @@ public class TabConverter
     private readonly int _transposeSemitones;
     private readonly StringBuilder _buffer = new StringBuilder();
     
-    public TabConverter(TextReader tabSource, TextWriter tabOutput,IInstrumentTabParser instrumentTabParser, IInstrumentTabBuilder[] instrumentTabBuilders, int transposeSemitones)
+    public TabConverter(TextReader tabSource, TextWriter tabOutput, IInstrumentTabParser instrumentTabParser,
+        IInstrumentTabBuilder[] instrumentTabBuilders, int transposeSemitones)
     {
         _tabSource = tabSource;
         _tabOutput = tabOutput;
@@ -29,14 +30,14 @@ public class TabConverter
     {
         while (FindInstrumentTab())
         {
-            // We found a tablature, now we need to parse it
-            // First we need to separate the tablature from any extra stuff that might be after it
+            // Found a tablature
+            // Separate the tablature from any extra stuff that might be after it
             (string separatedTablature, string extra) = SeparateTablature(_buffer.ToString());
-            // Then we parse the tablature
+            // Parse the tablature
             (List<MusicalPart> parsedTablature, Note lowestNote) = _instrumentTabParser.Parse(separatedTablature);
-            // Then we transpose it
+            // Transpose it
             Transpose(parsedTablature);
-            // Then we build for each instrument it and write it to output
+            // Build for each instrument and write to output
             for (var i = 0; i < _instrumentTabBuilders.Length; i++)
             {
                 IInstrumentTabBuilder builder = _instrumentTabBuilders[i];
@@ -46,7 +47,7 @@ public class TabConverter
                     _tabOutput.WriteLine("\n");
                 }
             }
-            // Then we write the extra stuff that was after the tablature (only once)
+            // Write the extra stuff that was after the tablature (only once)
             _tabOutput.WriteLine(extra);
             _buffer.Clear();
         }
@@ -110,7 +111,7 @@ public class TabConverter
         {
             foreach (IMusicalSymbol symbol in part.Symbols)
             {
-                if (symbol is INote note)
+                if (symbol is Note note)
                 {
                     note.Transpose(_transposeSemitones);
                 }
