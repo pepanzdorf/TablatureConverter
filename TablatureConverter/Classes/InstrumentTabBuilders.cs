@@ -82,6 +82,7 @@ public class GenericStringInstrumentTabBuilder : IInstrumentTabBuilder
                             note.Transpose(Transpose*Constants.TonesInOctave);
                             int fret = NoteFinder.Find(note, StringOffsets, availableStrings, stringIndex).fret;
                             strings[stringIndex].Append($"{fret}");
+                            note.Transpose(-Transpose*Constants.TonesInOctave);
                         }
                         else if (symbol is Technique technique)
                         {
@@ -214,6 +215,7 @@ public class BanjoTabBuilder : GenericStringInstrumentTabBuilder
                             note.Transpose(Transpose*Constants.TonesInOctave);
                             int fret = NoteFinder.Find(note, StringOffsets, availableStrings, stringIndex).fret;
                             strings[stringIndex].Append($"{fret}");
+                            note.Transpose(-Transpose*Constants.TonesInOctave);
                         }
                         else if (symbol is Technique technique)
                         {
